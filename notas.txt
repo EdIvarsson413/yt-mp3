@@ -1,0 +1,28 @@
+if( existsSync( 'node_modules/ffmpeg-static/ffmpeg.exe' ) ){
+    const convertion = spawnSync(
+        'node_modules/ffmpeg-static/ffmpeg.exe', 
+        [
+            '-loglevel', '24',
+            '-i', 'pipe:0',
+            '-vn', '-sn',
+            '-c:a', 'mp3',
+            '-ab', '192k',
+            '-f', 'mp3',
+            'pipe:1'
+        ], 
+        {
+            input: videoBuffer,
+            maxBuffer: 50 * 1024 * 1024
+        }
+    )
+
+    let audioBuffer = [];
+    if( convertion.error ) {
+        // Manejar error
+    } else {
+        audioBuffer = convertion.stdout;
+        return audioBuffer;
+    }
+} else {
+    console.log( 'Convertidor No disponible' )
+}
