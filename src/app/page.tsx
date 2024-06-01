@@ -1,9 +1,12 @@
 "use client"
+import Presentation from "@/components/Presentation"
+import FormLinks from "@/components/FormLinks";
 
 export default function Home() {
   return (
-    <main className="dark:bg-black bg-slate-600">
-      
-    </main>
+    <div className="dark:bg-blac min-h-[93.8vh] place-content-center">
+      <Presentation/>
+      <FormLinks/>
+    </div>
   );
 }

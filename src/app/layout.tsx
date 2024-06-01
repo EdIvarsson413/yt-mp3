@@ -3,12 +3,12 @@ import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils"
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ToggleTheme } from "@/components/ui/ToggleTheme";
+import Header from "@/components/Header";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "YT Downloader",
+  title: "Convertidor YT-Mp3",
   description: "Descarga tus canciones. Cuantas quieras, sin anuncios y virus",
   icons: '/favicon.png'
 };
@@ -33,13 +33,11 @@ export default function RootLayout({
           enableSystem
         >
           {/* Layout */}
-          <nav className="dark:bg-black border-b-2 border-gray-400">
-            <p>Github</p>
-            <p>Ayuda</p>
-            <ToggleTheme/>
-          </nav>
+          <Header/>
           
-          { children }
+          <main>
+            { children }
+          </main>
         </ThemeProvider>
       </body>
     </html>
