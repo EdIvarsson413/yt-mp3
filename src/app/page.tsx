@@ -1,12 +1,14 @@
 "use client"
-import Presentation from "@/components/Presentation"
-import FormLinks from "@/components/FormLinks";
+import FormLinks from "@/components/FormLinks"
+import Loader from "@/components/Loader"
+import Results from "@/components/Results"
 
 export default function Home() {
   return (
-    <div className="dark:bg-blac min-h-[93.8vh] place-content-center">
-      <Presentation/>
+    <div className="dark:bg-black min-h-[93.8vh] place-content-center">
       <FormLinks/>
+      {/* <Loader/> */}
+      {/* <Results/> */}
     </div>
   );
 }

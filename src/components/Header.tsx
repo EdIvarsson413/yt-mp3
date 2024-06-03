@@ -11,7 +11,7 @@ export default function Header() {
             <nav className="dark:bg-black border-b-2 dark:border-white border-gray-400 flex justify-between py-3 px-5">
                 <div className="flex gap-5">
                     {/* Github link */}
-                    <Button size='icon' variant='ghost' className="border-[1px] border-gray-400 dark:border-stone-800" asChild>
+                    <Button size='icon' variant='ghost' asChild>
                         <Link 
                             href="https://github.com/EdIvarsson413/yt-mp3"
                             target="_blank"
@@ -24,7 +24,7 @@ export default function Header() {
                     {/* Snippet */}
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button variant="ghost" className="border-[1px] border-gray-400 dark:border-stone-800">Mira Aquí</Button>
+                            <Button variant="ghost" className="border-[1px] border-gray-400 dark:border-white">Mira Aquí</Button>
                         </PopoverTrigger>
                         <PopoverContent>
                             <p className="text-center">

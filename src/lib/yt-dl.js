@@ -182,7 +182,7 @@ var Downloader = class {
                 songTitle: videoInfo.videoDetails.title,
                 fileName: name, 
                 buffer: songWithTags,
-                etiquetas: tags,
+                tags: tags,
             }
         })
     }
