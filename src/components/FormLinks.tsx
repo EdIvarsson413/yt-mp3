@@ -16,12 +16,17 @@ import Presentation from './Presentation'
 const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
 
 const formSchema = z.object({
-    links: z.string().regex(ytRegex, 'Links No Válidos').transform( links => links.split('\n')),
-    tags: z.boolean().default(false).optional()
+    links: z.string()
+                .regex(ytRegex, 'Links No Válidos')
+                .transform( links => links.split('\n'))
+                .refine( input => {return input.length <= 5 }, 'Máximo 5 links' ),
+    tags: z.boolean()
+            .default(false)
+            .optional()
 })
 
 
-export default function FormLinks() {
+export default function FormLinks( { download }: any ) {
     const placeholder = `Inserta Tus Links Aquí. \nEj: \nhttps://www.youtube.com/watch?v=VnJxdVTXc0E\nhttps://www.youtube.com/watch?v=AXwUy2uoI_M`;
 
     // Define form
@@ -31,19 +36,31 @@ export default function FormLinks() {
             links: [],
             tags: false
         },
-        mode: 'onChange'
+        mode: 'onSubmit'
     })
+
+    // form.setValue('links', ['vhjmvmv'])
 
     // Submit handler
     const onSubmit = (values: z.infer<typeof formSchema>) => {
-        console.log(values)
+        download( values.tags, values.links )
+    }
+
+    // onChange handler - save links in localStorage
+    const handleChange = ( { target, type }: any ) => {
+        const { value } = target;
+        // console.log(value.split('\n'))
     }
 
     return (
         <>
         <Presentation/>
         <Form {...form}>
-            <form autoComplete="off" onSubmit={form.handleSubmit(onSubmit)} className='space-y-8 border-[1px] dark:border-white border-gray-400 p-5 rounded-md sm:w-11/12 lg:w-[60%] mx-auto'>
+            <form
+                autoComplete="off" 
+                onSubmit={form.handleSubmit(onSubmit)}
+                className='space-y-8 border-[1px] dark:border-white border-gray-400 p-5 rounded-md sm:w-11/12 lg:w-[60%] mx-auto'
+            >
                 {/* Links text area */}
                 <FormField
                     control={form.control}
@@ -54,6 +71,7 @@ export default function FormLinks() {
                                 <Textarea 
                                     rows={5} 
                                     placeholder={placeholder}
+                                    {...form.register('links', { onChange: handleChange })}
                                     className='dark:border-white border-gray-400 font-mono' 
                                     {...field}
                                     />

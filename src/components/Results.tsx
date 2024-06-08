@@ -1,31 +1,24 @@
 import TableResults from "./results/TableResults"
 import CardResults from "./results/CardResults"
+import { useRouter } from "next/router"
 
-export default function Results() {
-    const results = [
-        {
-            cover: '/prueba/cover.jpg',
-            song: '/prueba/13.Black Thunder - Extended.mp3',
-            name: 'Black Thunder'
-        },
-        {
-            cover: '/prueba/cover.jpg',
-            song: '/prueba/13.Black Thunder - Extended.mp3',
-            name: 'Eminem - I will Feat. KXNG Crooked, Royce da 5\'9 & Joell Ortiz (Full Original Instrumental)'
-        },
-        {
-            cover: '/prueba/cover.jpg',
-            song: '/prueba/13.Black Thunder - Extended.mp3',
-            name: 'Black Thunder'
-        }
-    ]
+export default function Results({ results, restart }: any) {
+    const imgBufferToImage = ( imgBuffer: any ) => {
+        const imageBitArray = new Uint8Array( imgBuffer.data );
+        const blob = new Blob( [imageBitArray], { type: 'image/png' } );
+        const url = URL.createObjectURL( blob );
+        return url
+    }
 
-    const handleDownload = ( song: any ) => {
-        const a = document.createElement('a')
-        a.href = song
-        a.download
-        a.target = "_blank"
-        a.click()
+    const handleDownload = ( songBuffer: any, fileName: string ) => {
+        const audioBitArray = new Uint8Array( songBuffer.data );
+        const blob = new Blob( [audioBitArray], { type: 'audio/mp3' } );
+        const url = URL.createObjectURL( blob );
+        const aux = document.createElement('a')
+
+        aux.href = url;
+        aux.download = `${fileName}.mp3`;
+        aux.click();
     }
     
     return (
@@ -33,13 +26,17 @@ export default function Results() {
             {/* Table results in lg screens */}
             <TableResults
                 results={results}
+                imgBufferToImage={imgBufferToImage}
                 handleDownload={handleDownload}
+                restart={restart}
             />
 
             {/* Cards results in sm - md screen */}
             <CardResults
                 results={results}
+                imgBufferToImage={imgBufferToImage}
                 handleDownload={handleDownload}
+                restart={restart}
             />
         </div>
     )

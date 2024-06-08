@@ -50,9 +50,9 @@ var SearchTags = class {
             // The searching can return one o more results
             const tags = yield this.fetchTags();
 
-            if( typeof tags === 'string' ) return tags
+            if( typeof tags === 'number' ) return tags
 
-            // Modify zoom of song cover
+            // Modify dimensions of song cover
             const result = tags[0];
             const albumLink = result.artworkUrl100.replace( '100x100bb.jpg', '1000x1000bb.jpg' );
 
@@ -71,7 +71,7 @@ var SearchTags = class {
                         id: 3,
                         name: "front cover"
                     },
-                    description: "Album Art",
+                    description: `${result.trackName}`,
                     imageBuffer: coverBuffer
                 }
             }
@@ -85,7 +85,9 @@ var SearchTags = class {
             })
 
             // If there results
-            if( response.data.resultCount === 0 ) return 'No Hay Etiquetas Disponibles'
+            // 0 - Type error 0 = No there tags
+            // results - tags[]
+            if( response.data.resultCount === 0 ) return 0
             
             return response.data.results
         })
@@ -171,7 +173,7 @@ var Downloader = class {
             
             // Searching of tags and insert them
             const searchTags = yield new SearchTags( videoInfo.videoDetails.title );
-            const tags = this.insertTags? yield searchTags.search() : ''; 
+            const tags = this.insertTags? yield searchTags.search() : 0; 
             // console.log('Desde DESCARGADOR\n\n',tags)
             
             const songWithTags = typeof tags === 'object'? NodeID3.write( tags, convertion ) : convertion; 
@@ -181,8 +183,8 @@ var Downloader = class {
             return { 
                 songTitle: videoInfo.videoDetails.title,
                 fileName: name, 
-                buffer: songWithTags,
-                tags: tags,
+                songBuffer: songWithTags,
+                cover: tags,
             }
         })
     }

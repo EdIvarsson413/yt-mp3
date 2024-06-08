@@ -7,9 +7,9 @@ import {
 import { Button } from "../ui/button"
 import Image from "next/image"
 
-export default function TableResults({ results, handleDownload }: any) {
+export default function TableResults({ results, imgBufferToImage ,handleDownload, restart }: any) {
     return (
-        <Table className="mx-auto w-[60%] border-[1px] border-gray-400 dark:border-white md:hidden lg:block">
+        <Table className="mx-auto w-[60%] border-[1px] border-gray-400 dark:border-white sm:hidden lg:block">
             {/* Restart */}
             <TableHeader>
                 <TableRow className="border-b-[1px] border-gray-400 dark:border-white">
@@ -20,9 +20,13 @@ export default function TableResults({ results, handleDownload }: any) {
                     </TableHead>
                     <TableHead></TableHead>
                     <TableHead>
-                        <div className="flex justify-center">
-                            <Button variant='destructive' className="w-40 dark:bg-red-600 font-light text-lg">Reiniciar</Button>
-                        </div>
+                        <Button 
+                            variant='destructive' 
+                            className="w-40 dark:bg-red-600 font-light text-lg"
+                            onClick={restart}
+                        >
+                            Reiniciar
+                        </Button>
                     </TableHead>
                 </TableRow>
             </TableHeader>
@@ -37,24 +41,24 @@ export default function TableResults({ results, handleDownload }: any) {
             </TableHeader>
             <TableBody>
                 {
-                    results.map((result:any, index: number) => (
+                    results?.map( ( result:any, index: number ) => (
                         <TableRow key={index}>
                             <TableCell>
                                 <Image
-                                    src={result.cover}
-                                    alt={result.name}
+                                    src={ imgBufferToImage( result.cover ) }
+                                    alt={result.songTitle}
                                     width={500}
                                     height={500}
                                     className="w-[60%] mx-auto"
                                 />
                             </TableCell>
-                            <TableCell className="text-center font-light text-lg">{result.name}</TableCell>
+                            <TableCell className="text-center font-light text-lg">{result.songTitle}</TableCell>
                             <TableCell>
                                 <div className="flex justify-center">
                                     <Button
                                         variant="ghost"
                                         className="border-[1px] border-gray-400 dark:border-white font-light"
-                                        onClick={() => handleDownload(result.song)}
+                                        onClick={() => handleDownload(result.songBuffer, result.fileName)}
                                     >
                                         Descargar
                                     </Button>
