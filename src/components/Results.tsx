@@ -1,8 +1,7 @@
 import TableResults from "./results/TableResults"
 import CardResults from "./results/CardResults"
-import { useRouter } from "next/router"
 
-export default function Results({ results, restart }: any) {
+export default function Results({ results, restart, typeResults }: any) {
     const imgBufferToImage = ( imgBuffer: any ) => {
         const imageBitArray = new Uint8Array( imgBuffer.data );
         const blob = new Blob( [imageBitArray], { type: 'image/png' } );
@@ -10,15 +9,15 @@ export default function Results({ results, restart }: any) {
         return url
     }
 
-    const handleDownload = ( songBuffer: any, fileName: string ) => {
+    const audioBufferToMp3 = ( songBuffer: any, fileName: string ) => {
         const audioBitArray = new Uint8Array( songBuffer.data );
         const blob = new Blob( [audioBitArray], { type: 'audio/mp3' } );
         const url = URL.createObjectURL( blob );
-        const aux = document.createElement('a')
-
-        aux.href = url;
-        aux.download = `${fileName}.mp3`;
-        aux.click();
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${fileName}.mp3`;
+        a.click();
     }
     
     return (
@@ -26,16 +25,18 @@ export default function Results({ results, restart }: any) {
             {/* Table results in lg screens */}
             <TableResults
                 results={results}
+                typeResults={typeResults}
                 imgBufferToImage={imgBufferToImage}
-                handleDownload={handleDownload}
+                audioBufferToMp3={audioBufferToMp3}
                 restart={restart}
             />
 
             {/* Cards results in sm - md screen */}
             <CardResults
                 results={results}
+                typeResults={typeResults}
                 imgBufferToImage={imgBufferToImage}
-                handleDownload={handleDownload}
+                audioBufferToMp3={audioBufferToMp3}
                 restart={restart}
             />
         </div>

@@ -7,6 +7,7 @@ import ClientService from "@/services/ClientService"
 
 export default function Home() {
   const [ results, setResults ] = useState([]);
+  const [ typeResults, setTypeResults ] = useState<number>(-1);
   const [ enableForm, setEnableForm ] = useState <boolean>(false);
   const [ downloading, setDownloading ] = useState <boolean>(false);
   const [ finished, setFinished ] = useState <boolean>(false);
@@ -19,7 +20,9 @@ export default function Home() {
       const response = await ClientService.sendLinks( links, tags );
       const data = await response.json();
       setResults( data.newResults );
+      setTypeResults( data.typeResults );
 
+      console.log(data)
     } catch (error) {
       console.log(error)
     }
@@ -27,11 +30,11 @@ export default function Home() {
       setDownloading( false );
       setFinished( true );
     }
-
   }
 
   const restart = () => {
     setResults([]);
+    setTypeResults(-1);
     setDownloading(false);
     setEnableForm(false);
     setFinished(false);
@@ -41,7 +44,12 @@ export default function Home() {
     <div className="dark:bg-black min-h-[93.8vh] place-content-center">
       { !enableForm && <FormLinks download={download} />}
       { downloading && <Loader/>}
-      { finished && <Results results={results} restart={restart} /> }
+      { finished && <Results 
+                        results={results} 
+                        restart={restart} 
+                        typeResults={typeResults}
+                    /> 
+      }
     </div>
   );
 }

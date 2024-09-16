@@ -52,26 +52,39 @@ const POST = async ( request: Request ) => {
             results.push( response )
         } catch (error) {
             console.log('Error en el servidor :(... Intenta más tarde');
+            console.log(error)
         }
     }
 
     // Find type result
-    // 0 - Songs with tags
-    // 1 - One or mores songs without tags
-    // 2 - Another error
+    // 0 - No tags
+    // 1 - Songs with tags
+    // 2 - One or mores songs without tags
+    //   insert error tags attribute:
+    //      0 - No error tags
+    //      1 - error tags 
+    // 3 - Another error
 
-    let typeResults = 0;
-    for( let i = 0; i < results.length; i++ ) {
-        if( typeof results[i].cover === 'number' ) 
-            typeResults = 1;
-        else {
-            // If there is image buffer, get only the buffer
-            results[i] = {...results[i], cover: results[i].cover.image.imageBuffer}
+    // Primero ver si el usuario quiso etiquetas
+    let typeResults = tags? 1 : 0;
+
+    // Luego ver que cancion no tuvo etiquetas
+    if( typeResults !== 0) {
+        for( let i = 0; i < results.length; i++ ) {
+            if( typeof results[i].cover === 'number' ) {
+                typeResults = 2;
+                results[i].errorTags = 1;
+            }
+            else {
+                // If there is image buffer, get only the buffer
+                results[i] = {...results[i], cover: results[i].cover.image.imageBuffer}
+                results[i].errorTags = 0;
+            }
         }
     }
     
-    console.log(results)
-    return Response.json({ typeResults, tags, newResults: results })
+    // console.log(typeResults, results)
+    return Response.json({ typeResults, newResults: results })
 }
 
 export { GET, POST }

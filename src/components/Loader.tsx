@@ -1,7 +1,7 @@
 
 export default function Loader() {
     return (
-        <div className="mt-20">
+        <div>
             {/* Display loader based in theme */}
             <div className="folding dark:hidden block">
                 <div className="sk-cube1 sk-cube"></div>
@@ -17,7 +17,7 @@ export default function Loader() {
                 <div className="sk-cube3 sk-cube-dark"></div>
             </div>
             <h3 className="mt-8 text-center scroll-m-20 text-2xl font-light tracking-tight">
-                Links enviados al servidor, espere...
+                Links enviados al servidor, esto puede tardar...
             </h3>
         </div>
     )

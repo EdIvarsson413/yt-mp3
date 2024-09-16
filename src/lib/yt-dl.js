@@ -105,41 +105,50 @@ var SearchTags = class {
 }
 
 // #region Converter
-import ffmpeg from 'fluent-ffmpeg'
-import { PassThrough } from 'stream'
+import { spawnSync } from "child_process"
+import { existsSync } from 'fs'
+// import ffmpeg from 'ffmpeg-static'
+
+
 var Converter = class {
     constructor() {}
 
-    // Do the convertion (must return a audio buffer)
+    // Do the convertion (must return an audio buffer)
     convert( videoBuffer ) {
-        return __async(this, null, function* () {
-            return new Promise((resolve, reject) => {
-                // Validate if ffmpeg is instaled in project
-                if( 'node_modules/ffmpeg-static/ffmpeg.exe' ) {
-                    // Do the convertion of video stream to mp3 buffer
-                    const outputStream = new PassThrough();
-                    const chunks = [];
-
-                    outputStream.on('data', chunk => chunks.push(chunk));
-                    outputStream.on('end', () => resolve(Buffer.concat(chunks)));
-                    outputStream.on('error', reject);
-
-                    ffmpeg( videoBuffer )
-                        .setFfmpegPath('node_modules/ffmpeg-static/ffmpeg.exe')
-                        .audioCodec('libmp3lame')
-                        .audioBitrate('192k')
-                        .outputOptions('-threads', '0')
-                        .format('mp3')
-                        .pipe(outputStream, { end: true });
-                } else 
-                    console.log( 'Convertidor No Disponible' )
-            });
-        });
+        if( existsSync( 'node_modules/ffmpeg-static/ffmpeg.exe' ) ){
+            const convertion = spawnSync(
+                'node_modules/ffmpeg-static/ffmpeg.exe', 
+                [
+                    '-loglevel', '24',
+                    '-i', 'pipe:0',
+                    '-vn', '-sn',
+                    '-c:a', 'mp3',
+                    '-ab', '192k',
+                    '-f', 'mp3',
+                    'pipe:1'
+                ], 
+                {
+                    input: videoBuffer,
+                    maxBuffer: 50 * 1024 * 1024
+                }
+            )
+        
+            let audioBuffer = [];
+            if( convertion.error ) {
+                // Manejar error
+            } else {
+                audioBuffer = convertion.stdout;
+                return audioBuffer;
+            }
+        } else {
+            console.log( 'Convertidor No disponible' )
+        }
     }
 }
 
 // #region Downloader
-import ytdl from 'ytdl-core'
+// import ytdl from 'ytdl-core'
+import ytdl from '@distube/ytdl-core'
 import NodeID3 from 'node-id3'
 var Downloader = class {
     constructor( searchTags ) {
@@ -161,23 +170,23 @@ var Downloader = class {
 
             // File name
             const name = this.fileName( videoInfo.videoDetails.title );
+            console.log(name)
 
-            // Descargar video
+            // Download video
             const videoBuffer = yield this.downloadVideo( videoInfo ); 
-            // console.log('\n\nVIDEO BUFFER', videoBuffer)
+            console.log('\n\nVIDEO BUFFER', videoBuffer)
             
             // Transform video to audio
             const convertion = yield converter.convert( videoBuffer ); 
-            // console.log('\n\nCONVERSION BUFFER', convertion)
-            
+            console.log('\n\nCONVERSION BUFFER', convertion)
             
             // Searching of tags and insert them
             const searchTags = yield new SearchTags( videoInfo.videoDetails.title );
             const tags = this.insertTags? yield searchTags.search() : 0; 
-            // console.log('Desde DESCARGADOR\n\n',tags)
+            console.log('Desde DESCARGADOR\n\n',tags)
             
             const songWithTags = typeof tags === 'object'? NodeID3.write( tags, convertion ) : convertion; 
-            // console.log('Buffer final\n\n', songWithTags)
+            console.log('Buffer final\n\n', songWithTags)
             
             // Data output
             return { 
@@ -193,27 +202,26 @@ var Downloader = class {
     downloadVideo( videoInfo ) {
         return __async( this, null, function* () {
             const videoBuffer = [];
-            const stream = ytdl.downloadFromInfo( videoInfo, { quality: "highestaudio" });
-            return stream
-            
+            const stream = ytdl.downloadFromInfo( videoInfo, { filter: "audioonly", quality: "highestaudio" });
+
             // Streaming
-            // return new Promise( ( resolve, reject ) => {
-            //     // Add bytes
-            //     stream.on( "data", ( chunk ) => { videoBuffer.push( chunk ) });
+            return new Promise( ( resolve, reject ) => {
+                // Agregar bytes
+                stream.on( "data", ( chunk ) => { videoBuffer.push( chunk ) });
 
-            //     // Create and wrap buffer object
-            //     stream.on( "end", () => { resolve( Buffer.concat( videoBuffer ) ) });
+                // Crear y envolver objeto buffer
+                stream.on( "end", () => { resolve( Buffer.concat( videoBuffer ) ) });
 
-            //     // In case of errors
-            //     stream.on( "error", ( err ) => { reject( err ) });
-            // })
+                // En caso de errores
+                stream.on( "error", ( err ) => { reject( err ) });
+            })
         })
     }
 
     // Format the video title
     fileName( title ) {
         // const baseFileName = videoTitle.replace(/\s+|\||:|\/|\\|&/g, "_");
-        const baseFileName = title.replace(/\s+/g, "_").replace(/[|:/\\&]/g, "");
+        const baseFileName = title.replace(/\s+/g, "_").replace(/[|:/\\&\!\,]/g, "");
         return baseFileName;
     }
 }

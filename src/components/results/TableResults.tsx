@@ -6,8 +6,14 @@ import {
 } from "../ui/table"
 import { Button } from "../ui/button"
 import Image from "next/image"
+import Link from "next/link"
 
-export default function TableResults({ results, imgBufferToImage ,handleDownload, restart }: any) {
+export default function TableResults({ results, typeResults, imgBufferToImage, audioBufferToMp3, restart }: any) {
+
+    const checkResults = ( errorTags: number ) => {
+        return typeResults
+    }
+
     return (
         <Table className="mx-auto w-[60%] border-[1px] border-gray-400 dark:border-white sm:hidden lg:block">
             {/* Restart */}
@@ -44,13 +50,25 @@ export default function TableResults({ results, imgBufferToImage ,handleDownload
                     results?.map( ( result:any, index: number ) => (
                         <TableRow key={index}>
                             <TableCell>
-                                <Image
-                                    src={ imgBufferToImage( result.cover ) }
-                                    alt={result.songTitle}
-                                    width={500}
-                                    height={500}
-                                    className="w-[60%] mx-auto"
-                                />
+                                {
+                                    typeResults === 0 && 
+                                        <p className="text-center dark:text-yellow-600 text-yellow-400">Inserción de etiquetas desactivado</p>
+                                }
+                                {
+                                    typeResults === 2 && result.errorTags === 1 && 
+                                        <p className="text-center text-red-600">No se encontraron etiquetas:{'('}</p>
+                                }
+                                {
+                                    typeResults === 1 && (
+                                        <Image
+                                            src={ imgBufferToImage( result.cover ) }
+                                            alt={result.songTitle}
+                                            width={500}
+                                            height={500}
+                                            className="w-[60%] mx-auto"
+                                        />
+                                    )
+                                }
                             </TableCell>
                             <TableCell className="text-center font-light text-lg">{result.songTitle}</TableCell>
                             <TableCell>
@@ -58,7 +76,7 @@ export default function TableResults({ results, imgBufferToImage ,handleDownload
                                     <Button
                                         variant="ghost"
                                         className="border-[1px] border-gray-400 dark:border-white font-light"
-                                        onClick={() => handleDownload(result.songBuffer, result.fileName)}
+                                        onClick={ () => audioBufferToMp3( result.songBuffer, result.fileName )}
                                     >
                                         Descargar
                                     </Button>
